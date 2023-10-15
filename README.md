@@ -1,2 +1,2 @@
 # Android Ecommerce App in Kotlin.
-# Learned with DJ Malone's video tutorials.
+# Learned with Land of Coding video tutorials.
