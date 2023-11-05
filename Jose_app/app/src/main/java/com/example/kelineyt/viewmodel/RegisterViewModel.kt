@@ -2,6 +2,7 @@ package com.example.kelineyt.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.kelineyt.data.User
+import com.example.kelineyt.util.Constants.USER_COLLECTION
 import com.example.kelineyt.util.RegisterFieldState
 import com.example.kelineyt.util.RegisterValidation
 import com.example.kelineyt.util.Resource
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import com.example.kelineyt.util.validateEmail
 import com.example.kelineyt.util.validatePassword
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
@@ -20,12 +22,13 @@ import javax.inject.Inject
 @HiltViewModel
 
 class RegisterViewModel @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    private val db: FirebaseFirestore
 ): ViewModel() {
 
 
-    private val _register = MutableStateFlow< Resource<FirebaseUser> >(Resource.Unspecified())
-    public val register: Flow<Resource<FirebaseUser>> = _register
+    private val _register = MutableStateFlow< Resource<User> >(Resource.Unspecified())
+    public val register: Flow<Resource<User>> = _register
 
     private val _validation =   Channel<RegisterFieldState> ()
     val validation =   _validation.receiveAsFlow()
@@ -40,7 +43,8 @@ class RegisterViewModel @Inject constructor(
             firebaseAuth.createUserWithEmailAndPassword(user.email, password)
                 .addOnSuccessListener {
                     it.user?.let {
-                        _register.value = Resource.Success(it)
+                        saveUserInfo(it.uid, user)
+
                     }
                 }.addOnFailureListener {
                     _register.value = Resource.Error(it.message.toString())
@@ -54,6 +58,18 @@ class RegisterViewModel @Inject constructor(
 
         }
 
+    }
+
+    private fun saveUserInfo(userUid: String, user: User) {
+        db.collection(USER_COLLECTION)
+            .document(userUid)
+            .set(user)
+            .addOnSuccessListener {
+                _register.value = Resource.Success(user)
+            }
+            .addOnFailureListener {
+                _register.value = Resource.Error(it.message.toString())
+            }
     }
 
 
