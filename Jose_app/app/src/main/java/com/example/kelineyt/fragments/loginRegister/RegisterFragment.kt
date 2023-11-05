@@ -11,10 +11,13 @@ import androidx.lifecycle.lifecycleScope
 import com.example.kelineyt.R
 import com.example.kelineyt.data.User
 import com.example.kelineyt.databinding.FragmentRegisterBinding
+import com.example.kelineyt.util.RegisterValidation
 import com.example.kelineyt.util.Resource
 import com.example.kelineyt.viewmodel.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.withContext
 
 private val TAG = "RegisterFragment"
 
@@ -70,6 +73,30 @@ class RegisterFragment: Fragment() {
                 }
             }
         }
+
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.validation.collect(){
+                validation ->
+                if (validation.email is RegisterValidation.Failed){
+                    withContext(Dispatchers.Main){
+                        binding.etEmailRegister.apply {
+                            requestFocus()
+                            error = validation.email.message
+                        }
+                    }
+                }
+
+                if(validation.password is RegisterValidation.Failed){
+                    withContext(Dispatchers.Main){
+                        binding.etPasswordRegister.apply {
+                            requestFocus()
+                            error = validation.password.message
+                        }
+                    }
+                }
+            }
+        }//lyfecicle scope
 
     }//ON VIEW CREATED
 
