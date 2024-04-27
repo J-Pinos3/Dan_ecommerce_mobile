@@ -8,8 +8,7 @@ data class User(
 
 ){
     /*
-    user will be able to upload profeile image after sign up
-    thats why imagePath is an empty string
+    user will be able to upload profeile image after sign up thats why imagePath is an empty string
      */
 
 
