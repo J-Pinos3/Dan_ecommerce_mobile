@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "271930097589",
+    "project_id": "kelineyt-d5a96",
+    "storage_bucket": "kelineyt-d5a96.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271930097589:android:13161d45a7d937268263fc",
+        "android_client_info": {
+          "package_name": "com.example.kelineyt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQAsdKwn8-QoP-3qmuA4wAe6n-_Vs_Gbo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271930097589:android:93ce7ebb8d02808c8263fc",
+        "android_client_info": {
+          "package_name": "com.example.productsadder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQAsdKwn8-QoP-3qmuA4wAe6n-_Vs_Gbo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
