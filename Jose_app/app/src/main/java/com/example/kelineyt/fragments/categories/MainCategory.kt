@@ -5,12 +5,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kelineyt.R
 import com.example.kelineyt.adapters.BestDealsProductsAdapter
+import com.example.kelineyt.adapters.BestProductsAdapter
 import com.example.kelineyt.adapters.SpecialProductsAdapter
 import com.example.kelineyt.data.Product
 import com.example.kelineyt.databinding.FragmentMainCategoryBinding
@@ -26,6 +30,7 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
     private lateinit var binding: FragmentMainCategoryBinding
     private lateinit var specialProductsAdapter: SpecialProductsAdapter
     private lateinit var bestDealsProductsAdapter: BestDealsProductsAdapter
+    private lateinit var bestProductsAdapter: BestProductsAdapter
 
     private val viewModel by viewModels<MainCategoryViewModel>()
     override fun onCreateView(
@@ -42,6 +47,7 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
 
         setupSpecialProductsRv()
         setupBestDealsProductsRv()
+        setupBestProductsRv()
 
         lifecycleScope.launchWhenStarted {
             viewModel.specialProducts.collectLatest{
@@ -88,14 +94,44 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
 
                     else -> Unit
                 }
-            }//best deals products view holder
+            }//best deals products view model
 
         }
 
 
+        lifecycleScope.launchWhenStarted {
+            viewModel.bestProducts.collectLatest {
+                when(it){
+                    is Resource.Loading -> {
+                        showLoading()
+                    }
 
+                    is Resource.Success -> {
+                        bestProductsAdapter.differ.submitList(it.data)
+                        hideLoading()
+                    }
 
-    }
+                    is Resource.Error -> {
+                        hideLoading()
+                        Log.e("MainCategoryFragment","Error: ${it.message}")
+                        Snackbar.make(requireView(), "Error: ${it.message}", Snackbar.LENGTH_LONG).show()
+                    }
+
+                    else -> Unit
+                }
+            }//best products view model
+
+        }
+
+        //TODO CONTINUAR
+        binding.nestedScrollMainCategory.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener{
+            v, _, scrollY, _,_ ->
+            if( v.getChildAt(0).bottom <= v.height + scrollY ){
+                viewModel.fetchBestProducts()
+            }
+        })
+
+    }//ON VIEW CREATED
 
 
 
@@ -120,6 +156,14 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
         binding.rvBestDealProducts.apply {
             adapter = bestDealsProductsAdapter
             layoutManager  = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        }
+    }
+
+    private fun setupBestProductsRv(){
+        bestProductsAdapter = BestProductsAdapter()
+        binding.rvBestProducts.apply {
+            adapter = bestProductsAdapter
+            layoutManager = GridLayoutManager(requireContext(), 2, GridLayoutManager.VERTICAL, false)
         }
     }
 }

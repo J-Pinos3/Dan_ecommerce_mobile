@@ -1,6 +1,11 @@
 package com.example.kelineyt.adapters
 
+import android.graphics.Paint
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.kelineyt.data.Product
@@ -10,28 +15,56 @@ import java.text.DecimalFormat
 class BestProductsAdapter: RecyclerView.Adapter<BestProductsAdapter.BestProductsViewHolder>() {
 
     inner class BestProductsViewHolder(private val binding: ProductRvItemBinding):RecyclerView.ViewHolder(binding.root){
-        val df = DecimalFormat("#####.##")
+        private var remainingPercent = 0.0f
+        private var priceAfterOffer = 0.0f
         fun render(product: Product){
+            remainingPercent = 1f - (product.offerPercentage ?: 0.0f)
+            priceAfterOffer = remainingPercent * product.price
+
             binding.tvName.text = product.name
-            binding.tvNewPrice.text = product.offerPercentage.toString()
-            binding.tvPrice.text = product.price.toString()
+            if( product.offerPercentage == null )
+                binding.tvNewPrice.visibility = View.INVISIBLE
+
+            binding.tvNewPrice.text = "$ ${String.format("%.2f", priceAfterOffer)}"
+            binding.tvPrice.paintFlags  = Paint.STRIKE_THRU_TEXT_FLAG
+            binding.tvPrice.text = "$ ${product.price}"
 
             Glide.with(binding.imgProduct.context).load(product.images[0]).into(binding.imgProduct)
 
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BestProductsViewHolder {
-        TODO("Not yet implemented")
+
+    private val diffCallback = object: DiffUtil.ItemCallback<Product>(){
+        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
+            return oldItem == newItem
+        }
+
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
+    val differ = AsyncListDiffer(this, diffCallback)
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BestProductsViewHolder {
+        return BestProductsViewHolder(
+            ProductRvItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
+
 
     override fun onBindViewHolder(holder: BestProductsViewHolder, position: Int) {
-        TODO("Not yet implemented")
+        val product = differ.currentList[position]
+        holder.render(product)
     }
 
+    override fun getItemCount(): Int = differ.currentList.size
 
 }

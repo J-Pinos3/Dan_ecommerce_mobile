@@ -14,11 +14,15 @@ class BestDealsProductsAdapter: RecyclerView.Adapter<BestDealsProductsAdapter.Be
 
 
     inner class BestDealsProductsViewHolder(private val binding: BestDealsRvItemBinding):RecyclerView.ViewHolder(binding.root){
-        val df = DecimalFormat("#####.##")
+        private var remainingPercent = 0.0f
+        private var priceAfterOffer = 0.0f
         fun render(product: Product){
+            remainingPercent = 1f - (product.offerPercentage ?: 0.0f)
+            priceAfterOffer = remainingPercent * product.price
+
             binding.tvDealProductName.text = product.name
-            binding.tvOldPrice.text = df.format(product.price).toString()
-            binding.tvNewPrice.text =df.format(product.offerPercentage ).toString()
+            binding.tvOldPrice.text = "$ ${product.price}"
+            binding.tvNewPrice.text = "$ ${String.format("%.2f", priceAfterOffer)}"
 
             Glide.with(binding.imgBestDeal.context).load(product.images[0]).into(binding.imgBestDeal)
         }
