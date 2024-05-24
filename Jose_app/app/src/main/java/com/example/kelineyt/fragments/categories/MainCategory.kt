@@ -103,16 +103,16 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
             viewModel.bestProducts.collectLatest {
                 when(it){
                     is Resource.Loading -> {
-                        showLoading()
+                        binding.pbBestProducts.visibility =  View.VISIBLE
                     }
 
                     is Resource.Success -> {
                         bestProductsAdapter.differ.submitList(it.data)
-                        hideLoading()
+                        binding.pbBestProducts.visibility =  View.GONE
                     }
 
                     is Resource.Error -> {
-                        hideLoading()
+                        binding.pbBestProducts.visibility =  View.GONE
                         Log.e("MainCategoryFragment","Error: ${it.message}")
                         Snackbar.make(requireView(), "Error: ${it.message}", Snackbar.LENGTH_LONG).show()
                     }
@@ -123,7 +123,7 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
 
         }
 
-        //TODO CONTINUAR
+
         binding.nestedScrollMainCategory.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener{
             v, _, scrollY, _,_ ->
             if( v.getChildAt(0).bottom <= v.height + scrollY ){

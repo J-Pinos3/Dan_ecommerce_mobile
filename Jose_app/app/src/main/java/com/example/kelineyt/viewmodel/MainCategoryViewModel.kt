@@ -6,6 +6,7 @@ import com.example.kelineyt.data.Product
 import com.example.kelineyt.util.Constants.PRODUCTS_COLLECTION
 import com.example.kelineyt.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObjects
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -84,25 +85,33 @@ class MainCategoryViewModel @Inject constructor (
 
 
     fun fetchBestProducts(){
-        viewModelScope.launch {
-            _bestProducts.emit(Resource.Loading())
+        if(!pagingInfo.isPagingEnd) {
+            viewModelScope.launch {
+                _bestProducts.emit(Resource.Loading())
+            }
+
+            firestore.collection(PRODUCTS_COLLECTION)
+                //.whereEqualTo("category", "Best Products")
+                //.orderBy("id", Query.Direction.ASCENDING)
+                .limit(pagingInfo.bestProductsPage * 10)
+                .get()
+                .addOnSuccessListener { result ->
+                    val bestProductsList = result.toObjects(Product::class.java)
+                    pagingInfo.isPagingEnd = bestProducts == pagingInfo.oldBestProducts
+                    pagingInfo.oldBestProducts = bestProductsList
+
+                    viewModelScope.launch {
+                        _bestProducts.emit(Resource.Success(bestProductsList))
+                    }
+
+                    pagingInfo.bestProductsPage++
+                }
+                .addOnFailureListener {
+                    viewModelScope.launch {
+                        _bestProducts.emit(Resource.Error(it.message.toString()))
+                    }
+                }
         }
-
-        firestore.collection(PRODUCTS_COLLECTION)
-            .whereEqualTo("category","Best Products").limit(pagingInfo.page*10).get()
-            .addOnSuccessListener { result ->
-                val bestProductsList = result.toObjects(Product::class.java)
-                viewModelScope.launch {
-                    _bestProducts.emit(Resource.Success(bestProductsList))
-                }
-
-                pagingInfo.page++
-            }
-            .addOnFailureListener {
-                viewModelScope.launch {
-                    _bestProducts.emit(Resource.Error(it.message.toString()) )
-                }
-            }
     }
 
 
@@ -110,5 +119,8 @@ class MainCategoryViewModel @Inject constructor (
 }
 
 internal data class PagingInfo(
-    var page: Long = 1
+    var bestProductsPage: Long = 1,
+    var oldBestProducts: List<Product> = emptyList(),
+    var isPagingEnd: Boolean = false
+
 )
