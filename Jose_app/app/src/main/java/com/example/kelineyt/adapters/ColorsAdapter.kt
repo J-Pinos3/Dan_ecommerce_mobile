@@ -43,7 +43,7 @@ class ColorsAdapter:RecyclerView.Adapter<ColorsAdapter.ColorsViewHolder>() {
 
     }
 
-    private val differ = AsyncListDiffer(this, diffCallback)
+    val differ = AsyncListDiffer(this, diffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ColorsViewHolder {
         return ColorsViewHolder(

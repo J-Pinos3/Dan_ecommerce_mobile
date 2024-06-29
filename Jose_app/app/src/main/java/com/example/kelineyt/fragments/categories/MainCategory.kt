@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kelineyt.R
@@ -18,7 +19,9 @@ import com.example.kelineyt.adapters.BestProductsAdapter
 import com.example.kelineyt.adapters.SpecialProductsAdapter
 import com.example.kelineyt.data.Product
 import com.example.kelineyt.databinding.FragmentMainCategoryBinding
+import com.example.kelineyt.fragments.shopping.HomeFragmentDirections
 import com.example.kelineyt.util.Resource
+import com.example.kelineyt.util.showBottomNavigationView
 import com.example.kelineyt.viewmodel.MainCategoryViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +36,13 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
     private lateinit var bestProductsAdapter: BestProductsAdapter
 
     private val viewModel by viewModels<MainCategoryViewModel>()
+
+    override fun onResume() {
+        super.onResume()
+
+        showBottomNavigationView()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,8 +56,28 @@ class MainCategory:Fragment(R.layout.fragment_main_category) {
         super.onViewCreated(view, savedInstanceState)
 
         setupSpecialProductsRv()
+
         setupBestDealsProductsRv()
         setupBestProductsRv()
+
+        //navigate to details and send the product
+        specialProductsAdapter.onClick = {
+            val bundle = Bundle().apply { putParcelable("producto", it) }
+            //findNavController().navigate( HomeFragmentDirections.actionHomeFragmentToProductsDetailFragment(it) )
+            findNavController().navigate(R.id.action_homeFragment_to_productsDetailFragment, bundle)
+        }
+
+        bestDealsProductsAdapter.onClick = {
+            val bundle = Bundle().apply { putParcelable("producto", it) }
+            //findNavController().navigate( HomeFragmentDirections.actionHomeFragmentToProductsDetailFragment(it) )
+            findNavController().navigate(R.id.action_homeFragment_to_productsDetailFragment, bundle)
+        }
+
+        bestProductsAdapter.onClick = {
+            val bundle = Bundle().apply { putParcelable("producto", it) }
+            findNavController().navigate(R.id.action_homeFragment_to_productsDetailFragment, bundle)
+        }
+
 
         lifecycleScope.launchWhenStarted {
             viewModel.specialProducts.collectLatest{

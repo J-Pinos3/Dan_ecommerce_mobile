@@ -42,7 +42,7 @@ class SizesAdapter: RecyclerView.Adapter<SizesAdapter.SizesViewHolder>() {
 
     }
 
-    private val differ = AsyncListDiffer(this, diffCallback)
+    val differ = AsyncListDiffer(this, diffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SizesViewHolder {
         return SizesViewHolder(
