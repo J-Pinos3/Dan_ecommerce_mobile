@@ -19,7 +19,11 @@
         android:id="@+id/profileFragment"
         android:name="com.example.kelineyt.fragments.shopping.ProfileFragment"
         android:label="ProfileFragment"
-        tools:layout="@layout/fragment_profile"/>
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_addressFragment"
+            app:destination="@id/addressFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/cartFragment"
@@ -29,6 +33,11 @@
         <action
             android:id="@+id/action_cartFragment_to_productsDetailFragment"
             app:destination="@id/productsDetailFragment" />
+
+
+        <action
+            android:id="@+id/action_cartFragment_to_billingFragment2"
+            app:destination="@id/billingFragment" />
     </fragment>
 
     <fragment
@@ -49,6 +58,26 @@
         <argument
             android:name="producto"
             app:argType="com.example.kelineyt.data.Product" />
+    </fragment>
+    <fragment
+        android:id="@+id/addressFragment"
+        android:name="com.example.kelineyt.fragments.shopping.AddressFragment"
+        android:label="AddressFragment"
+        tools:layout="@layout/fragment_address"/>
+    <fragment
+        android:id="@+id/billingFragment"
+        android:name="com.example.kelineyt.fragments.shopping.BillingFragment"
+        android:label="BillingFragment"
+        tools:layout="@layout/fragment_billing">
+        <action
+            android:id="@+id/action_billingFragment_to_addressFragment"
+            app:destination="@id/addressFragment" />
+        <argument
+            android:name="totalPrice"
+            app:argType="float" />
+        <argument
+            android:name="products"
+            app:argType="com.example.kelineyt.data.CartProduct[]" />
     </fragment>
 
 </navigation>

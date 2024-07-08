@@ -28,7 +28,7 @@ class CartProductsAdapter: RecyclerView.Adapter<CartProductsAdapter.CartProducts
             binding.tvProductCartPrice.text = priceAfterPercentage.toString()
             Glide.with(itemView).load(cartProduct.product.images[0]).into(binding.ivimageCartProduct)
 
-            binding.cimimageCartProductSize.setImageDrawable(
+            binding.cimimageCartProductColor.setImageDrawable(
                 ColorDrawable(cartProduct.selectedColor ?: Color.TRANSPARENT)
             )
 
