@@ -1,5 +1,6 @@
 package com.example.kelineyt.fragments.shopping
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,11 +15,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kelineyt.R
 import com.example.kelineyt.adapters.AddressAdapter
 import com.example.kelineyt.adapters.BillingProductsAdapter
+import com.example.kelineyt.data.Address
 import com.example.kelineyt.data.CartProduct
+import com.example.kelineyt.data.order.OrderStatus
 import com.example.kelineyt.databinding.FragmentBillingBinding
 import com.example.kelineyt.util.HorizontalItemDecoration
 import com.example.kelineyt.util.Resource
 import com.example.kelineyt.viewmodel.BillingViewModel
+import com.example.kelineyt.viewmodel.OrderViewModel
+import com.google.android.material.snackbar.Snackbar
+import com.google.firestore.v1.StructuredQuery.Order
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -33,6 +39,9 @@ class BillingFragment: Fragment() {
     private val args by navArgs<BillingFragmentArgs>()
     private var products = emptyList<CartProduct>()
     private var totalPrice = 0f
+
+    private var selectedAddress: Address? = null
+    private val orderViewModel by viewModels<OrderViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +77,7 @@ class BillingFragment: Fragment() {
                     }
 
                     is Resource.Success -> {
-                        binding.progressbarAddress.visibility = View.INVISIBLE
+                        binding.progressbarAddress.visibility = View.GONE
                         if( !it.data?.isEmpty()!! ){
                             addressAdapter.differ.submitList( it.data )
                         }
@@ -83,10 +92,71 @@ class BillingFragment: Fragment() {
             }
         }
 
+        lifecycleScope.launchWhenStarted {
+            orderViewModel.order.collectLatest {
+                when(it){
+                    is Resource.Loading -> {
+                        binding.buttonPlaceOrder.startAnimation()
+                    }
+
+                    is Resource.Success -> {
+                        binding.buttonPlaceOrder.revertAnimation()
+                        findNavController().navigateUp()
+                        Snackbar.make(requireView(), "Your Order was placed.", Snackbar.LENGTH_LONG).show()
+                    }
+
+                    is Resource.Error -> {
+                        binding.buttonPlaceOrder.revertAnimation()
+                        Toast.makeText(requireContext(),it.message.toString(), Toast.LENGTH_LONG).show()
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+
 
         billingProductsAdapter.differ.submitList(products)
 
-        binding.tvTotalPrice.text = "$ ${totalPrice}"
+        binding.tvTotalPrice.text = "$ ${String.format("%.2f",totalPrice)}"
+
+
+        addressAdapter.onClick = {
+            selectedAddress = it
+        }
+
+        binding.buttonPlaceOrder.setOnClickListener {
+            if(selectedAddress == null){
+                Toast.makeText(requireContext(),"Please select an address.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            showOrderConfirmationDialog()
+        }
+    }//ON VIEW CREATED
+
+
+
+    private fun showOrderConfirmationDialog() {
+        //Todo create the fdialog in a separate file
+        val alertDialog = AlertDialog.Builder(requireContext()).apply {
+            setTitle("Order Items")
+            setMessage("Do you want to order your cart items?")
+            setNegativeButton("Cancel"){dialog, _ ->
+                dialog.dismiss()
+            }
+            setPositiveButton("Continue"){dialog,_ ->
+                val order = com.example.kelineyt.data.order.Order(
+                    OrderStatus.Ordered.status,
+                    totalPrice,
+                    products,
+                    selectedAddress!!
+                )
+                orderViewModel.placeOrder(order)
+                dialog.dismiss()
+            }
+        }
+        alertDialog.create()
+        alertDialog.show()
     }
 
 

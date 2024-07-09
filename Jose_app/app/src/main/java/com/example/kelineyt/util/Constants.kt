@@ -5,6 +5,7 @@ object Constants {
     const val PRODUCTS_COLLECTION = "Products"
     const val CART_COLLECTION = "cart"
     const val ADDRESS_COLLECTION ="address"
+    const val ORDERS_COLLECTION="orders"
     const val INTRODUCTION_SHARED_PREFERENCES = "IntroductionSP"
     const val INTRODUCTION_KEY = "IntroductionKey"
 }

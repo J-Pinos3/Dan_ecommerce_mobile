@@ -79,5 +79,10 @@
             android:name="products"
             app:argType="com.example.kelineyt.data.CartProduct[]" />
     </fragment>
+    <fragment
+        android:id="@+id/userAccountFragment"
+        android:name="com.example.kelineyt.fragments.settings.UserAccountFragment"
+        android:label="UserAccountFragment"
+        tools:layout="@layout/fragment_user_account"/>
 
 </navigation>
