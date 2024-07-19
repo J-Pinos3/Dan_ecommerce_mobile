@@ -52,7 +52,7 @@ class ProfileFragment: Fragment(){
         }
 
         binding.linearBilling.setOnClickListener {
-            val actions = ProfileFragmentDirections.actionProfileFragmentToBillingFragment(0f, emptyArray())
+            val actions = ProfileFragmentDirections.actionProfileFragmentToBillingFragment(0f, emptyArray(), false)
             findNavController().navigate(actions)
         }
 
