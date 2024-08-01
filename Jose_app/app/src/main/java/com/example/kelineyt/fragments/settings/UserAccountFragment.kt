@@ -21,7 +21,9 @@ import com.example.kelineyt.databinding.FragmentUserAccountBinding
 import com.example.kelineyt.dialog.setupBottomSheetDialog
 import com.example.kelineyt.util.Resource
 import com.example.kelineyt.viewmodel.UserAccountViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
@@ -108,10 +110,25 @@ class UserAccountFragment: Fragment() {
             imageActivityResultLauncher.launch(intent)
         }
 
-        //TODO SET UPDATE PASSWORD
+
         binding.tvUpdatePassword.setOnClickListener {
             setupBottomSheetDialog {
+                userAccountViewModel.resetPassword(it)
+            }
+        }
 
+        lifecycleScope.launchWhenStarted {
+            userAccountViewModel.resetPassword.collect(){
+                when(it){
+                    is Resource.Loading -> {}
+                    is Resource.Success -> {
+                        Snackbar.make(requireView(), "Reset Link was sent to email", Snackbar.LENGTH_LONG).show()
+                    }
+                    is Resource.Error ->{
+                        Snackbar.make(requireView(), "Error: ${it.message}", Snackbar.LENGTH_LONG).show()
+                    }
+                    else -> Unit
+                }
             }
         }
     }

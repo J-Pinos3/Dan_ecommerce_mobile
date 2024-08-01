@@ -151,7 +151,7 @@ class BillingFragment: Fragment() {
 
 
     private fun showOrderConfirmationDialog() {
-        //Todo create the fdialog in a separate file
+        //Todo create the fdialog in a separate file check reset dialog
         val alertDialog = AlertDialog.Builder(requireContext()).apply {
             setTitle("Order Items")
             setMessage("Do you want to order your cart items?")
